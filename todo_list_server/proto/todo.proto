@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package todo;
+
+option csharp_namespace = "TodoList.Grpc";
+
+enum Status {
+  PENDING = 0;
+  IN_PROGRESS = 1;
+  COMPLETED = 2;
+  CANCELED = 3;
+}
+
+message TodoItem {
+  int32 id = 1;
+  string description = 2;
+  Status status = 3;
+}
+
+message AddItemRequest {
+  string description = 1;
+}
+message AddItemResponse {
+  TodoItem item = 1;
+}
+
+message UpdateStatusRequest {
+  int32 id = 1;
+  Status status = 3;
+}
+message UpdateStatusResponse {}
+
+message DeleteItemRequest {
+  int32 id = 1;
+}
+message DeleteItemResponse {}
+
+message GetListRequest {}
+message GetListResponse {
+  repeated TodoItem items = 1;
+}
+
+enum ChangeType {
+  ADD = 0;
+  UPDATE = 1;
+  REMOVE = 2;
+}
+
+message ChangeNotification {
+  // event type
+  ChangeType type = 1;
+
+  oneof payload {
+      // ADD or UPDATE
+      TodoItem item = 2;
+      // REMOVE
+      int32 removed_item_id = 3;
+  }
+}
+
+message SubscribeRequest {}
+
+service TodoService {
+
+  rpc AddItem(AddItemRequest) returns (AddItemResponse);
+  rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse);
+  rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse);
+  rpc GetList(GetListRequest) returns (GetListResponse);
+  rpc SubscribeChanges(SubscribeRequest) returns (stream ChangeNotification);
+}
